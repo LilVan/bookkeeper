@@ -38,7 +38,13 @@ class SQLiteRepository(AbstractRepository[T]):
         where - условие в виде словаря {'название_поля': значение}
         если условие не задано (по умолчанию), вернуть все записи
         """
-        pass
+        with sqlite3.connect(self.db_file) as con:  #TODO: добавить блок where
+            cur = con.cursor()
+            cur.execute('PRAGMA foreign_keys = ON')
+            cur.execute(f' SELECT * FROM {self.table_name}')
+            res = cur.fetchall()
+        con.close()
+        return res
 
     def update(self, obj: T) -> None:
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
