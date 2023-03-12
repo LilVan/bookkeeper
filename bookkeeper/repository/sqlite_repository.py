@@ -9,7 +9,7 @@ def model_make(cls: Any, fields: dict[Any, Any], values: str) -> Any:
     res = object.__new__(cls)
     if values is None:
         return None
-    for attr, val in zip(fields.keys(), values[1:3]):
+    for attr, val in zip(fields.keys(), values[1:]):
         setattr(res, attr, val)
     setattr(res, 'pk', values[0])
     return res

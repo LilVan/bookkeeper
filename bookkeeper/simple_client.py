@@ -10,7 +10,7 @@ from bookkeeper.utils import read_tree
 
 
 cat_repo = SQLiteRepository[Category]('test.db', Category)
-exp_repo = SQLiteRepository[Category]('test.db', Category)
+exp_repo = SQLiteRepository[Expense]('test.db', Expense)
 
 cats = '''
 продукты
@@ -38,7 +38,7 @@ while True:
     if cmd == 'категории':
         print(*cat_repo.get_all(), sep='\n')
     elif cmd == 'расходы':
-        print(*exp_repo.get_all(), sep='\n')
+        print(exp_repo.get(3), sep='\n')
     elif cmd == 'get':
         print(cat_repo.get(3), sep='\n')
     elif cmd == 'del':

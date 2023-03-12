@@ -1,5 +1,6 @@
 from bookkeeper.models.expense import Expense
 
+
 class ExpensePresenter:
 
     def __init__(self, model, view, cat_repo, exp_repo):
@@ -12,10 +13,9 @@ class ExpensePresenter:
         self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
         self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
 
-
     def update_expense_data(self):
         self.exp_data = self.exp_repo.get_all()
-        for e in self.exp_data:  #TODO: "TypeError: 'NoneType' object is not iterable" on empty DB
+        for e in self.exp_data:  # TODO: "TypeError: 'NoneType' object is not iterable" on empty DB
             for c in self.cat_data:
                 if c.pk == e.category:
                     e.category = c.name
