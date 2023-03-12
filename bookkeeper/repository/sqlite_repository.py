@@ -24,6 +24,8 @@ class SQLiteRepository(AbstractRepository[T]):
         self.fields.pop('pk')
 
     def add(self, obj: T) -> int:
+        if getattr(obj, 'pk', None) != 0:
+            raise ValueError(f'trying to add object {obj} with filled `pk` attribute')
         names = ', '.join(self.fields.keys())
         p = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
@@ -73,6 +75,8 @@ class SQLiteRepository(AbstractRepository[T]):
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
         if not hasattr(obj, 'pk'):
             raise ValueError(f'The object must contain the pk field')
+        if obj.pk == 0:
+            raise ValueError('attempt to update object with unknown primary key')
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             p = []
