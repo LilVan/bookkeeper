@@ -41,6 +41,12 @@ while True:
         print(*exp_repo.get_all(), sep='\n')
     elif cmd == 'get':
         print(cat_repo.get(3), sep='\n')
+    elif cmd == 'del':
+        cat_repo.delete(3)
+    elif cmd == 'upd':
+        obj2 = Category('Meat', 2)
+        obj2.pk = 2
+        cat_repo.update(obj2)
     elif cmd == 'cond':
         try:
             print(cat_repo.get_all({'name': 'продукты', 'id': 1}))

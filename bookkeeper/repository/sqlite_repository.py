@@ -69,13 +69,36 @@ class SQLiteRepository(AbstractRepository[T]):
         con.close()
         return res
 
-    def update(self, obj: T) -> None:
+    def update(self, obj: T) -> T:
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
-        pass
-    
+        if not hasattr(obj, 'pk'):
+            raise ValueError(f'The object must contain the pk field')
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            p = []
+            for attr, value in dict(zip(self.fields, [getattr(obj, f) for f in self.fields])).items():
+                if type(value) == str:
+                    value = f"'{value}'"
+                p.append(" = ".join([attr, str(value)]))
+            p = ", ".join(p)
+            cur.execute(f"UPDATE {self.table_name} SET {p} WHERE id = {getattr(obj, 'pk')}")
+            con.commit()
+        con.close()
+        return obj
+
     def delete(self, pk: int) -> None:
         """ Удалить запись """
-        pass
+        with sqlite3.connect(self.db_file) as con:
+            if self.count(con.cursor(), pk) == 0:
+                raise KeyError(f'No row with id = {pk}')
+            cur = con.cursor()
+            cur.execute(f'DELETE FROM {self.table_name} WHERE rowid = {pk}')
+        con.close()
+
+    def count(self, cur: Any, pk: int) -> int:
+        """ Считает, сколько объектов с данным pk"""
+        res = cur.execute(f'SELECT count(*) FROM {self.table_name} WHERE id = {pk}').fetchone()
+        return res[0]
 
 
 """
