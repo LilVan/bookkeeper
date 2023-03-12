@@ -2,15 +2,26 @@ import sqlite3
 
 from inspect import get_annotations
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
+from typing import Any
+
+
+def model_make(cls: Any, fields: dict[Any, Any], values: str) -> Any:
+    res = object.__new__(cls)
+    if values is None:
+        return None
+    for attr, val in zip(fields.keys(), values[1:3]):
+        setattr(res, attr, val)
+    setattr(res, 'pk', values[0])
+    return res
 
 
 class SQLiteRepository(AbstractRepository[T]):
     def __init__(self, db_file: str, cls: type) -> None:
+        self.cls: type = cls
         self.db_file = db_file
         self.table_name = cls.__name__.lower()
         self.fields = get_annotations(cls, eval_str=True)
         self.fields.pop('pk')
-
 
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
@@ -29,20 +40,32 @@ class SQLiteRepository(AbstractRepository[T]):
 
     def get(self, pk: int) -> T | None:
         """ Получить объект по id """
-        pass
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute(f"SELECT * FROM {self.table_name} WHERE rowid = {pk}")
+            res = model_make(self.cls, self.fields, cur.fetchone())
+        con.close()
+        return res
 
-    def get_all(self, where: dict[str, any] | None = None) -> list[T]:
+    def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
         """
-        было Any а не any
         Получить все записи по некоторому условию
         where - условие в виде словаря {'название_поля': значение}
         если условие не задано (по умолчанию), вернуть все записи
         """
-        with sqlite3.connect(self.db_file) as con:  #TODO: добавить блок where
+        with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
-            cur.execute('PRAGMA foreign_keys = ON')
-            cur.execute(f' SELECT * FROM {self.table_name}')
-            res = cur.fetchall()
+            if where is None:
+                cur.execute(f'SELECT * FROM {self.table_name}')
+            else:
+                p = []
+                for attr, value in where.items():
+                    if type(value) == str:
+                        value = f"'{value}'"
+                    p.append(" = ".join([attr, str(value)]))
+                p = " AND ".join(p)
+                cur.execute(f"SELECT * FROM {self.table_name} WHERE {p}")
+            res = [model_make(self.cls, self.fields, val) for val in cur.fetchall()]
         con.close()
         return res
 
@@ -53,6 +76,7 @@ class SQLiteRepository(AbstractRepository[T]):
     def delete(self, pk: int) -> None:
         """ Удалить запись """
         pass
+
 
 """
 r = SQLiteRepository('test.sqlite', Test)

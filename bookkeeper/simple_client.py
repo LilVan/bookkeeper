@@ -10,7 +10,7 @@ from bookkeeper.utils import read_tree
 
 
 cat_repo = SQLiteRepository[Category]('test.db', Category)
-exp_repo = MemoryRepository[Expense]()
+exp_repo = SQLiteRepository[Category]('test.db', Category)
 
 cats = '''
 продукты
@@ -22,7 +22,7 @@ cats = '''
 одежда
 '''.splitlines()
 
-Category.create_from_tree(read_tree(cats), cat_repo)  # TODO: не выполнять при каждом запуске
+#Category.create_from_tree(read_tree(cats), cat_repo)  # TODO: не выполнять при каждом запуске
 
 while True:
     try:
@@ -31,17 +31,22 @@ while True:
         break
     if not cmd:
         continue
+
+    #if cmd == '2':
+     #   print(*cat_repo.get(2), sep='\n')
+
     if cmd == 'категории':
         print(*cat_repo.get_all(), sep='\n')
     elif cmd == 'расходы':
         print(*exp_repo.get_all(), sep='\n')
-    elif cmd[0].isdecimal():
-        amount, name = cmd.split(maxsplit=1)
+    elif cmd == 'get':
+        print(cat_repo.get(3), sep='\n')
+    elif cmd == 'cond':
         try:
-            cat = cat_repo.get_all({'name': name})[0]
+            print(cat_repo.get_all({'name': 'продукты', 'id': 1}))
         except IndexError:
-            print(f'категория {name} не найдена')
+            print(f'категория продукты не найдена')
             continue
-        exp = Expense(int(amount), cat.pk)
-        exp_repo.add(exp)
-        print(exp)
+#        exp = Expense(int(amount), cat.pk)
+#        exp_repo.add(exp)
+#        print(exp)
