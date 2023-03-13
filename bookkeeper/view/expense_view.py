@@ -92,7 +92,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_category_dropdown(self, data):
         for c in data:
-            self.category_dropdown.addItem(c.name, c.pk)
+            self.category_dropdown.addItem(c.name, c.pk) # TODO несколько одинаковых категорий
 
     def on_expense_add_button_clicked(self, slot):
         self.expense_add_button.clicked.connect(slot)
