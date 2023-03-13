@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QVBoxLayout, QLabel,  QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
+from PySide6.QtWidgets import QVBoxLayout, QLabel,  QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton, QMessageBox
 from PySide6 import QtCore, QtWidgets
 from bookkeeper.view.categories_view import CategoryDialog
 from datetime import datetime
@@ -63,6 +63,10 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(3):
             hheader.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
             vheader.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+        self.start_data = [['0', '0'], ['0', '0'], ['0', '0']]
+        self.add_data(self.start_data)
+
+        self.expenses_table.keyReleaseEvent = self.tableKeyReleaseEvent
 
         self.layout.addWidget(self.expenses_table)
 
@@ -114,6 +118,9 @@ class MainWindow(QtWidgets.QMainWindow):
         data += [[str(month_total)]] + [[str(year_total)]]
         self.add_data(data)
 
+    def get_entered(self):
+        print(123)
+
     def set_expense_table(self, data):
         if data:
             self.item_model = TableModel(data)
@@ -164,3 +171,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     i, j,
                     QtWidgets.QTableWidgetItem(x.capitalize())
                 )
+
+    def tableKeyReleaseEvent(self, event):
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setWindowTitle("Превышение бюджета")
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        if float(self.expenses_table.item(0, 0).text()) > float(self.expenses_table.item(0, 1).text()):
+            msgBox.setText("Внимание! Превышен бюджет за день!")
+            returnValue = msgBox.exec()
+        elif float(self.expenses_table.item(1, 0).text()) > float(self.expenses_table.item(1, 1).text()):
+            msgBox.setText("Внимание! Превышен бюджет за месяц!")
+            returnValue = msgBox.exec()
+        elif float(self.expenses_table.item(2, 0).text()) > float(self.expenses_table.item(2, 1).text()):
+            msgBox.setText("Внимание! Превышен бюджет за год!")
+            returnValue = msgBox.exec()
+
