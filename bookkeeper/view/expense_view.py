@@ -66,7 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.start_data = [['0', '0'], ['0', '0'], ['0', '0']]
         self.add_data(self.start_data)
 
-        self.expenses_table.keyReleaseEvent = self.tableKeyReleaseEvent
+        self.expenses_table.keyReleaseEvent = self.table_key_release_event
 
         self.layout.addWidget(self.expenses_table)
 
@@ -91,7 +91,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
 
         self.expense_delete_button = QPushButton('Удалить')
-        self.bottom_controls.addWidget(self.expense_delete_button, 2, 2)  #TODO: improve buttons layout
+        self.bottom_controls.addWidget(self.expense_delete_button, 2, 2)  # TODO: improve buttons layout
 
         self.bottom_widget = QWidget()
         self.bottom_widget.setLayout(self.bottom_controls)
@@ -105,21 +105,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_clicked(self):
         selected = self.__get_selected_row_indices()
+        day_total = 0
         month_total = 0
         year_total = 0
-        data = [[str(self.item_model._data[selected[0]].amount)]]
+
         for i in range(self.item_model.rowCount(0)):
             if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).year == \
                     datetime.fromisoformat(str(self.item_model._data[i].expense_date)).year:
                 year_total += self.item_model._data[i].amount
+
                 if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).month == \
                         datetime.fromisoformat(str(self.item_model._data[i].expense_date)).month:
                     month_total += self.item_model._data[i].amount
-        data += [[str(month_total)]] + [[str(year_total)]]
-        self.add_data(data)
 
-    def get_entered(self):
-        print(123)
+                    if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).day == \
+                            datetime.fromisoformat(str(self.item_model._data[i].expense_date)).day:
+                        day_total += self.item_model._data[i].amount
+
+        data = [[str(day_total)]] + [[str(month_total)]] + [[str(year_total)]]
+        self.add_data(data)
 
     def set_expense_table(self, data):
         if data:
@@ -131,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_category_dropdown(self, data):
         for c in data:
-            self.category_dropdown.addItem(c.name, c.pk) # TODO несколько одинаковых категорий
+            self.category_dropdown.addItem(c.name, c.pk)  # TODO несколько одинаковых категорий
 
     def on_expense_add_button_clicked(self, slot):
         self.expense_add_button.clicked.connect(slot)
@@ -172,18 +176,17 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QTableWidgetItem(x.capitalize())
                 )
 
-    def tableKeyReleaseEvent(self, event):
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Information)
-        msgBox.setWindowTitle("Превышение бюджета")
-        msgBox.setStandardButtons(QMessageBox.Ok)
+    def table_key_release_event(self, event):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setWindowTitle("Превышение бюджета")
+        msg_box.setStandardButtons(QMessageBox.Ok)
         if float(self.expenses_table.item(0, 0).text()) > float(self.expenses_table.item(0, 1).text()):
-            msgBox.setText("Внимание! Превышен бюджет за день!")
-            returnValue = msgBox.exec()
+            msg_box.setText("Внимание! Превышен бюджет за день!")
+            msg_box.exec()
         elif float(self.expenses_table.item(1, 0).text()) > float(self.expenses_table.item(1, 1).text()):
-            msgBox.setText("Внимание! Превышен бюджет за месяц!")
-            returnValue = msgBox.exec()
+            msg_box.setText("Внимание! Превышен бюджет за месяц!")
+            msg_box.exec()
         elif float(self.expenses_table.item(2, 0).text()) > float(self.expenses_table.item(2, 1).text()):
-            msgBox.setText("Внимание! Превышен бюджет за год!")
-            returnValue = msgBox.exec()
-
+            msg_box.setText("Внимание! Превышен бюджет за год!")
+            msg_box.exec()
