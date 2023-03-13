@@ -90,12 +90,14 @@ class SQLiteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             p = []
-            for attr, value in dict(zip(self.fields, [getattr(obj, f) for f in self.fields])).items():
+            for attr, value in dict(zip(self.fields, [getattr(obj, f)
+                                                      for f in self.fields])).items():
                 if type(value) == str:
                     value = f"'{value}'"
                 p.append(" = ".join([attr, str(value)]))
             p = ", ".join(p)
-            cur.execute(f"UPDATE {self.table_name} SET {p} WHERE pk = {getattr(obj, 'pk')}")
+            cur.execute(f"UPDATE {self.table_name} SET {p}"
+                        f" WHERE pk = {getattr(obj, 'pk')}")
             con.commit()
         con.close()
         return obj
@@ -111,7 +113,8 @@ class SQLiteRepository(AbstractRepository[T]):
 
     def count(self, cur: Any, pk: int) -> int:
         """ Считает, сколько объектов с данным pk"""
-        res = cur.execute(f'SELECT count(*) FROM {self.table_name} WHERE pk = {pk}').fetchone()
+        res = cur.execute(f'SELECT count(*) FROM {self.table_name}'
+                          f' WHERE pk = {pk}').fetchone()
         return res[0]
 
 

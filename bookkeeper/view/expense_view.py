@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QVBoxLayout, QLabel,  QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton, QMessageBox
+from PySide6.QtWidgets import QVBoxLayout, QLabel,  QWidget,\
+    QGridLayout, QComboBox, QLineEdit, QPushButton, QMessageBox
 from PySide6 import QtCore, QtWidgets
 from bookkeeper.view.categories_view import CategoryDialog
 from datetime import datetime
@@ -91,7 +92,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
 
         self.expense_delete_button = QPushButton('Удалить')
-        self.bottom_controls.addWidget(self.expense_delete_button, 2, 2)  # TODO: improve buttons layout
+        self.bottom_controls.addWidget(self.expense_delete_button, 2, 2)
+        # TODO: improve buttons layout
 
         self.bottom_widget = QWidget()
         self.bottom_widget.setLayout(self.bottom_controls)
@@ -110,15 +112,18 @@ class MainWindow(QtWidgets.QMainWindow):
         year_total = 0
 
         for i in range(self.item_model.rowCount(0)):
-            if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).year == \
+            if datetime.fromisoformat(str(
+                    self.item_model._data[selected[0]].expense_date)).year == \
                     datetime.fromisoformat(str(self.item_model._data[i].expense_date)).year:
                 year_total += self.item_model._data[i].amount
 
-                if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).month == \
+                if datetime.fromisoformat(str(
+                        self.item_model._data[selected[0]].expense_date)).month == \
                         datetime.fromisoformat(str(self.item_model._data[i].expense_date)).month:
                     month_total += self.item_model._data[i].amount
 
-                    if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).day == \
+                    if datetime.fromisoformat(str(
+                            self.item_model._data[selected[0]].expense_date)).day == \
                             datetime.fromisoformat(str(self.item_model._data[i].expense_date)).day:
                         day_total += self.item_model._data[i].amount
 
@@ -130,12 +135,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.item_model = TableModel(data)
             self.expenses_grid.setModel(self.item_model)
             self.expenses_grid.resizeColumnsToContents()
-            grid_width = sum([self.expenses_grid.columnWidth(x) for x in range(0, self.item_model.columnCount(0) + 1)])
+            grid_width = sum([self.expenses_grid.columnWidth(x)
+                              for x in range(0, self.item_model.columnCount(0) + 1)])
             self.setFixedSize(grid_width + 80, 600)
 
     def set_category_dropdown(self, data):
         for c in data:
-            self.category_dropdown.addItem(c.name, c.pk)  # TODO несколько одинаковых категорий
+            self.category_dropdown.addItem(c.name, c.pk)
+            # TODO несколько одинаковых категорий
 
     def on_expense_add_button_clicked(self, slot):
         self.expense_add_button.clicked.connect(slot)
@@ -147,7 +154,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return float(self.amount_line_edit.text())  # TODO: обработка исключений
 
     def __get_selected_row_indices(self) -> list[int]:
-        return list(set([qmi.row() for qmi in self.expenses_grid.selectionModel().selection().indexes()]))
+        return list(set([qmi.row() for qmi
+                         in self.expenses_grid.selectionModel().selection().indexes()]))
 
     def get_selected_expenses(self) -> list[int] | None:
         idx = self.__get_selected_row_indices()
@@ -169,10 +177,10 @@ class MainWindow(QtWidgets.QMainWindow):
             cat_dlg.exec_()
 
     def add_data(self, data):
-        for i, row in enumerate(data):
-            for j, x in enumerate(row):
+        for a, row in enumerate(data):
+            for b, x in enumerate(row):
                 self.expenses_table.setItem(
-                    i, j,
+                    a, b,
                     QtWidgets.QTableWidgetItem(x.capitalize())
                 )
 
@@ -181,12 +189,15 @@ class MainWindow(QtWidgets.QMainWindow):
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setWindowTitle("Превышение бюджета")
         msg_box.setStandardButtons(QMessageBox.Ok)
-        if float(self.expenses_table.item(0, 0).text()) > float(self.expenses_table.item(0, 1).text()):
+        if float(self.expenses_table.item(0, 0).text()) > \
+                float(self.expenses_table.item(0, 1).text()):
             msg_box.setText("Внимание! Превышен бюджет за день!")
             msg_box.exec()
-        elif float(self.expenses_table.item(1, 0).text()) > float(self.expenses_table.item(1, 1).text()):
+        elif float(self.expenses_table.item(1, 0).text()) > \
+                float(self.expenses_table.item(1, 1).text()):
             msg_box.setText("Внимание! Превышен бюджет за месяц!")
             msg_box.exec()
-        elif float(self.expenses_table.item(2, 0).text()) > float(self.expenses_table.item(2, 1).text()):
+        elif float(self.expenses_table.item(2, 0).text()) > \
+                float(self.expenses_table.item(2, 1).text()):
             msg_box.setText("Внимание! Превышен бюджет за год!")
             msg_box.exec()

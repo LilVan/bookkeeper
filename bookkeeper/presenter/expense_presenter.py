@@ -8,14 +8,21 @@ class ExpensePresenter:
         self.view = view
         self.exp_repo = exp_repo
         self.exp_data = None
-        self.cat_data = cat_repo.get_all()  # TODO: implement update_cat_data() similar to update_expense_data()
-        self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
-        self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
-        self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
+        self.cat_data = cat_repo.get_all()
+        # TODO: implement update_cat_data() similar to update_expense_data()
+        self.view.on_expense_add_button_clicked(
+            self.handle_expense_add_button_clicked)
+
+        self.view.on_expense_delete_button_clicked(
+            self.handle_expense_delete_button_clicked)
+
+        self.view.on_category_edit_button_clicked(
+            self.handle_category_edit_button_clicked)
 
     def update_expense_data(self):
         self.exp_data = self.exp_repo.get_all()
-        for e in self.exp_data:  # TODO: "TypeError: 'NoneType' object is not iterable" on empty DB
+        for e in self.exp_data:
+            # TODO: "TypeError: 'NoneType' object is not iterable" on empty DB
             for c in self.cat_data:
                 if c.pk == e.category:
                     e.category = c.name
