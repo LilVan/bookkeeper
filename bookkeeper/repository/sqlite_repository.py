@@ -95,7 +95,7 @@ class SQLiteRepository(AbstractRepository[T]):
                     value = f"'{value}'"
                 p.append(" = ".join([attr, str(value)]))
             p = ", ".join(p)
-            cur.execute(f"UPDATE {self.table_name} SET {p} WHERE id = {getattr(obj, 'pk')}")
+            cur.execute(f"UPDATE {self.table_name} SET {p} WHERE pk = {getattr(obj, 'pk')}")
             con.commit()
         con.close()
         return obj
@@ -104,14 +104,14 @@ class SQLiteRepository(AbstractRepository[T]):
         """ Удалить запись """
         with sqlite3.connect(self.db_file) as con:
             if self.count(con.cursor(), pk) == 0:
-                raise KeyError(f'No row with id = {pk}')
+                raise KeyError(f'No row with pk = {pk}')
             cur = con.cursor()
             cur.execute(f'DELETE FROM {self.table_name} WHERE rowid = {pk}')
         con.close()
 
     def count(self, cur: Any, pk: int) -> int:
         """ Считает, сколько объектов с данным pk"""
-        res = cur.execute(f'SELECT count(*) FROM {self.table_name} WHERE id = {pk}').fetchone()
+        res = cur.execute(f'SELECT count(*) FROM {self.table_name} WHERE pk = {pk}').fetchone()
         return res[0]
 
 
