@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
+from PySide6.QtWidgets import QVBoxLayout, QLabel,  QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
 from PySide6 import QtCore, QtWidgets
 from bookkeeper.view.categories_view import CategoryDialog
+from datetime import datetime
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -44,6 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(QLabel('Последние расходы'))
 
         self.expenses_grid = QtWidgets.QTableView()
+        self.expenses_grid.clicked.connect(self.get_clicked)
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QLabel('Бюджет'))
@@ -54,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.expenses_table.setHorizontalHeaderLabels(
             "Сумма Бюджет".split())
         self.expenses_table.setVerticalHeaderLabels(
-            "День Неделя Месяц".split())
+            "День Месяц Год".split())
 
         hheader = self.expenses_table.horizontalHeader()
         vheader = self.expenses_table.verticalHeader()
@@ -96,6 +98,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.widget.setLayout(self.layout)
 
         self.setCentralWidget(self.widget)
+
+    def get_clicked(self):
+        selected = self.__get_selected_row_indices()
+        month_total = 0
+        year_total = 0
+        data = [[str(self.item_model._data[selected[0]].amount)]]
+        for i in range(self.item_model.rowCount(0)):
+            if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).year == \
+                    datetime.fromisoformat(str(self.item_model._data[i].expense_date)).year:
+                year_total += self.item_model._data[i].amount
+                if datetime.fromisoformat(str(self.item_model._data[selected[0]].expense_date)).month == \
+                        datetime.fromisoformat(str(self.item_model._data[i].expense_date)).month:
+                    month_total += self.item_model._data[i].amount
+        data += [[str(month_total)]] + [[str(year_total)]]
+        self.add_data(data)
 
     def set_expense_table(self, data):
         if data:
