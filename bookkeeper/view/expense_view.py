@@ -47,7 +47,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QLabel('Бюджет'))
-        self.layout.addWidget(QLabel('<TODO: таблица бюджета>\n\n\n\n\n\n\n\n'))
+
+        self.expenses_table = QtWidgets.QTableWidget(2, 3)
+        self.expenses_table.setColumnCount(2)
+        self.expenses_table.setRowCount(3)
+        self.expenses_table.setHorizontalHeaderLabels(
+            "Сумма Бюджет".split())
+        self.expenses_table.setVerticalHeaderLabels(
+            "День Неделя Месяц".split())
+
+        hheader = self.expenses_table.horizontalHeader()
+        vheader = self.expenses_table.verticalHeader()
+        for i in range(3):
+            hheader.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+            vheader.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+
+        self.layout.addWidget(self.expenses_table)
 
         self.bottom_controls = QGridLayout()
 
@@ -124,3 +139,11 @@ class MainWindow(QtWidgets.QMainWindow):
             cat_dlg.setWindowTitle('Редактирование категорий')
             cat_dlg.setGeometry(300, 100, 600, 300)
             cat_dlg.exec_()
+
+    def add_data(self, data):
+        for i, row in enumerate(data):
+            for j, x in enumerate(row):
+                self.expenses_table.setItem(
+                    i, j,
+                    QtWidgets.QTableWidgetItem(x.capitalize())
+                )

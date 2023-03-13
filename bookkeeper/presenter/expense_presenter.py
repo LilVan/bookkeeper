@@ -26,6 +26,7 @@ class ExpensePresenter:
         self.view.show()
         self.update_expense_data()
         self.view.set_category_dropdown(self.cat_data)
+        self.view.expenses_table.show()
 
     def handle_expense_add_button_clicked(self) -> None:
         cat_pk = self.view.get_selected_cat()
